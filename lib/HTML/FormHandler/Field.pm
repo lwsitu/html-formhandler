@@ -950,6 +950,13 @@ sub dump
    }
 }
 
+sub render_label
+{
+   my $self = shift;
+   return '<label class="label" for="' . $self->id . '">' . $self>label . ': </label>';
+}
+
+
 =head1 AUTHORS
 
 HTML::FormHandler Contributors; see HTML::FormHandler

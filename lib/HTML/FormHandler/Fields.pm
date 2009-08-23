@@ -309,6 +309,7 @@ sub _make_field
       die "Could not load field class '$type' $class for field '$name'";
 
    $field_attr->{form} = $self->form if $self->form;
+   $field_attr->{widget_wrapper} = $self->widget_wrapper if $self->widget_wrapper;
    # parent and name correction for names with dots
    if ( $field_attr->{name} =~ /\./ ) {
       my @names       = split /\./, $field_attr->{name};

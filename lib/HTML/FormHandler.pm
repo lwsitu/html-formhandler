@@ -942,6 +942,7 @@ sub apply_rendering_widgets
 {
    my $self = shift;
 
+   return unless $self->widget_form;
    $self->meta->make_mutable;                      
    my $widget = $self->widget_class( $self->widget_form );
    my $widget_role = 'HTML::FormHandler::Widget::Form::' . $widget;

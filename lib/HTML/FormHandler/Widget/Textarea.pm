@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::Textarea;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -16,7 +17,7 @@ sub render
    my $output =
       qq(<textarea name="$name" id="$id" ) . qq(rows="$rows" cols="$cols">$fif</textarea>);
 
-   return $output;
+   return $self->render_field($result, $output);
 }
 
 1;

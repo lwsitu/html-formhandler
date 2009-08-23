@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::Compound;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -13,7 +14,7 @@ sub render
       next unless $subresult;
       $output .= $subfield->render($subresult);
    }
-   return $output;
+   return $self->render_field($result, $output);
 }
 
 1;

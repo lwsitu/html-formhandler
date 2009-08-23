@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::Password;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -12,8 +13,8 @@ sub render
    $output .= ' id="' . $self->id . '"';
    $output .= ' size="' . $self->size . '"' if $self->size;
    $output .= ' maxlength="' . $self->maxlength . '"' if $self->maxlength;
-   $output .= ' value="' . $result->fif . '" />';
-   return $output;
+   $output .= ' value="' . $self->fif($result) . '" />';
+   return $self->render_field($result, $output);
 }
 
 no Moose::Role;

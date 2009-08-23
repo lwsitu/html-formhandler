@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::Text;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -13,8 +14,8 @@ sub render
    $output .= ' size="' . $self->size . '"' if $self->size;
    $output .= ' maxlength="' . $self->maxlength . '"' if $self->maxlength;
    $output .= ' value="' . $self->fif($result) . '" />';
-   return $output;
+   return $self->render_field($result, $output);
 }
 
-no Moose::role;
+no Moose::Role;
 1;

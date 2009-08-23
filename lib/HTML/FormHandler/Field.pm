@@ -550,12 +550,14 @@ sub build_result
 sub input
 {
    my $self = shift;
+   return unless $self->has_result;
    return $self->_set_input(@_) if @_;
    return $self->result->input;
 }
 sub value
 {
    my $self = shift;
+   return unless $self->has_result;
    return $self->_set_value(@_) if @_;
    return $self->result->value;
 }
@@ -614,6 +616,13 @@ has 'accessor' => (
    }
 );
 has 'temp' => ( is => 'rw' );
+sub has_flag
+{
+   my ($self, $flag_name) = @_;
+   return unless $self->can($flag_name);
+   return $self->$flag_name;
+}
+                                                                        
 has 'label' => (
    isa     => 'Str',
    is      => 'rw',
@@ -737,6 +746,7 @@ sub BUILD
 {
    my ( $self, $params ) = @_;
 
+   $self->apply_rendering_widgets;
    $self->add_action( $self->trim ) if $self->trim;
    $self->_build_apply_list;
    $self->add_action( @{ $params->{apply} } ) if $params->{apply};
@@ -950,12 +960,27 @@ sub dump
    }
 }
 
-sub render_label
+sub apply_rendering_widgets
 {
    my $self = shift;
-   return '<label class="label" for="' . $self->id . '">' . $self>label . ': </label>';
+
+   $self->meta->make_mutable;                      
+   my $widget_class = 'HTML::FormHandler::Widget::' . $self->widget_class;
+   Class::MOP::load_class($widget_class) or
+      die "Could not load widget role $widget_class for field " . $self->name;
+   $widget_class->meta->apply($self);
+   $self->meta->make_immutable;    
 }
 
+sub widget_class
+{
+   my $self = shift;
+   my $widget = $self->widget;
+   return unless $widget;
+   $widget =~ s/^(\w{1})/\u$1/g;
+   $widget =~ s/_(\w{1})/\u$1/g;
+   return $widget;
+}
 
 =head1 AUTHORS
 

@@ -1,6 +1,9 @@
 package HTML::FormHandler::Widget::Submit;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
+
+has 'no_render_label' => ( is => 'ro', lazy => 1, default => 1 );
 
 sub render
 {
@@ -11,7 +14,7 @@ sub render
    $output .= $self->html_name . '"';
    $output .= ' id="' . $self->id . '"';
    $output .= ' value="' . $self->value . '" />';
-   return $output;
+   return $self->render_field($result, $output);
 }
 
 1;

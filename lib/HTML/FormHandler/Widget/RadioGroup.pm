@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::RadioGroup;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -12,12 +13,12 @@ sub render
    foreach my $option ( $self->options ) {
       $output .= '<input type="radio" value="' . $option->{value} . '"';
       $output .= ' name="' . $self->html_name . '" id="' . $self->id . ".$index\"";
-      $output .= ' checked="checked"' if $option->{value} eq $result->fif;
+      $output .= ' checked="checked"' if $option->{value} eq $self->fif($result);
       $output .= ' />';
       $output .= $option->{label} . '<br />';
       $index++;
    }
-   return $output;
+   return $self->render_field($result, $output);
 }
 
 1;

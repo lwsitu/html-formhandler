@@ -1,6 +1,7 @@
 package HTML::FormHandler::Widget::Select;
 
 use Moose::Role;
+with 'HTML::FormHandler::Widget::Field';
 
 sub render
 {
@@ -39,7 +40,7 @@ sub render
       $index++;
    }
    $output .= '</select>';
-   return $output;
+   return $self->render_field($result, $output);
 }
 
 1;

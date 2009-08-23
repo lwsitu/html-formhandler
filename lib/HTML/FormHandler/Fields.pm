@@ -86,7 +86,7 @@ sub add_field
 }
 
 has 'field_name_space' => (
-   isa     => 'Str|Undef',
+   isa     => 'Str|ArrayRef[Str]|Undef',
    is      => 'rw',
    lazy    => 1,
    default => '',

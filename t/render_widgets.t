@@ -9,7 +9,7 @@ use HTML::FormHandler::Field::Text;
    package Test::Form;
    use HTML::FormHandler::Moose;
    extends 'HTML::FormHandler';
-   with 'HTML::FormHandler::Render::Simple';
+#   with 'HTML::FormHandler::Render::Simple';
 
    has '+name' => ( default => 'testform' );
    has_field 'test_field' => (
@@ -165,9 +165,6 @@ is( $output10, '
 <div><label class="label" for="opt_in">Opt_in: </label> <br /><input type="radio" value="0" name="opt_in" id="opt_in.0" checked="checked" />No<br /><input type="radio" value="1" name="opt_in" id="opt_in.1" />Yes<br /></div>
 ', 'output from radio group' );
 
-done_testing;
-exit;
-
 my $output11 = $form->render_start;
 is( $output11,'<form id="testform" method="post">
 <fieldset class="main_fieldset">', 'Form start OK' );
@@ -175,6 +172,6 @@ is( $output11,'<form id="testform" method="post">
 my $output = $form->render;
 ok( $output, 'get rendered output from form');
 
-is( $form->render_field( $form->field('no_render')), '', 'no_render' );
+is( $form->field('no_render')->render, '', 'no_render' );
 
 done_testing;

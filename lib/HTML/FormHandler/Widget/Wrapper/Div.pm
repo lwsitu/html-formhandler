@@ -1,8 +1,27 @@
-package HTML::FormHandler::Widget::Field;
+package HTML::FormHandler::Widget::Wrapper::Div;
 
 use Moose::Role;
 
 has 'auto_fieldset' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'label_types' => (
+   metaclass => 'Collection::Hash',
+   isa       => 'HashRef[Str]',
+   is        => 'rw',
+   builder   => 'build_label_types',
+   provides   => { get => 'get_label_type', },
+);
+sub build_label_types
+{
+   {
+      text        => 'label',
+      password    => 'label',
+      select      => 'label',
+      checkbox    => 'label',
+      textarea    => 'label',
+      radio_group => 'label',
+      compound    => 'legend'
+   };
+}
 
 sub render_label
 {
@@ -31,6 +50,9 @@ sub render_field
 
    my $class = $self->render_class( $result );
    my $output = qq{\n<div$class>};
+   # couldn't get the label_type hashref to work; it kept getting garbage 
+   # collected (I think). At least it ended up undef when that wasn't valid...
+   my $test = $self->get_label_type($self->widget);
    if ( $self->widget eq 'compound' ) {
       $output .= '<fieldset class="' . $self->html_name . '">';
       $output .= '<legend>' . $self->label . '</legend>';

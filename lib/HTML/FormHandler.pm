@@ -583,7 +583,9 @@ sub build_result {
    my $self = shift;
    return HTML::FormHandler::Result->new( name => $self->name, form => $self );
 }
-
+has 'widget_name_space' => ( is => 'ro', isa => 'Str|ArrayRef[Str]' );
+has 'widget_form' => ( is => 'ro', isa => 'Str', default => 'div' );
+has 'widget_wrapper' => ( is => 'ro', isa => 'Str', default => 'div' );
 
 # object with which to initialize
 has 'init_object' => ( is => 'rw', clearer => 'clear_init_object' );
@@ -667,6 +669,7 @@ sub BUILD
 {
    my $self = shift;
 
+   $self->apply_rendering_widgets;
    $self->_build_fields;    # create the form fields
    return if defined $self->item_id && !$self->item;
    # load values from object (if any)
@@ -933,6 +936,28 @@ sub _munge_params
    }
    $new_params = {} if !defined $new_params;
    $self->{params} = $new_params;
+}
+
+sub apply_rendering_widgets
+{
+   my $self = shift;
+
+   $self->meta->make_mutable;                      
+   my $widget = $self->widget_class( $self->widget_form );
+   my $widget_role = 'HTML::FormHandler::Widget::Form::' . $widget;
+   Class::MOP::load_class($widget_role) or
+      die "Could not load widget role $widget_role for form " . $self->name;
+   $widget_role->meta->apply($self);
+   $self->meta->make_immutable;    
+}
+
+sub widget_class
+{
+   my ( $self, $widget ) = @_;
+   return unless $widget;
+   $widget =~ s/^(\w{1})/\u$1/g;
+   $widget =~ s/_(\w{1})/\u$1/g;
+   return $widget;
 }
 
 =head1 SUPPORT

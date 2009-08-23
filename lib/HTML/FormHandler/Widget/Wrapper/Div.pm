@@ -61,7 +61,7 @@ sub render_field
       $output .= $self->render_label;
    }
    $output .= $rendered_widget;
-   $output .= qq{\n<span class="error_message">$_</span>} for $self->errors;
+   $output .= qq{\n<span class="error_message">$_</span>} for $result->errors;
    if ( $self->widget eq 'compound' ) {
       $output .= '</fieldset>';
    }

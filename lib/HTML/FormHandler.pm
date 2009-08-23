@@ -581,7 +581,18 @@ has 'result' => ( isa => 'HTML::FormHandler::Result', is => 'ro',
 );
 sub build_result { 
    my $self = shift;
-   return HTML::FormHandler::Result->new( name => $self->name, form => $self );
+
+   my $result = HTML::FormHandler::Result->new( name => $self->name, form => $self );
+   if( $self->widget_form ) {
+      my $render_role = 'HTML::FormHandler::Widget::Form::' . 
+                     $self->widget_class($self->widget_form);
+      $result->meta->make_mutable;                      
+      Class::MOP::load_class($render_role) or
+         die "Could not load form render role $render_role for result " . $self->name;
+      $render_role->meta->apply($self);
+      $result->meta->make_immutable;
+  }
+  return $result;
 }
 has 'widget_name_space' => ( is => 'ro', isa => 'Str|ArrayRef[Str]' );
 has 'widget_form' => ( is => 'ro', isa => 'Str', default => 'div' );

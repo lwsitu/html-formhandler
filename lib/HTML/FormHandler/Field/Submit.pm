@@ -27,18 +27,10 @@ has 'value' => (
    default   => 'Save',
    init_arg  => 'value',
 );
-has 'result' => ( isa => 'HTML::FormHandler::Field::Result', is => 'ro',
-   builder => 'build_result',
-   predicate => 'has_result',
-   handles => [ '_set_input', '_clear_input', 'has_input',
-#                '_set_value', '_clear_value', 'has_value',
-#                'errors', 'push_errors', 'num_errors', 'has_errors', 'clear_errors', 'validated',
-              ],
-);
 sub _result_from_object {  }
 sub _result_from_fields {  }
 sub _result_from_input {  }
-sub build_result
+sub result
 {
    my $self = shift;
    return HTML::FormHandler::Field::Result->new( name => $self->name, 

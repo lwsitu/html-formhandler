@@ -212,7 +212,7 @@ the label_column is used as the sort condition.
 
 has 'sort_column' => ( isa => 'Str', is => 'rw' );
 
-has '+widget'  => ( default => 'Select' );
+has '+widget'  => ( default => 'select' );
 
 =head2 select_widget
 

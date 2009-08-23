@@ -537,14 +537,18 @@ has 'result' => ( isa => 'HTML::FormHandler::Field::Result', is => 'ro',
                 'errors', 'push_errors', 'num_errors', 'has_errors', 'clear_errors', 'validated',
               ],
 );
+has '_pin_result' => ( is => 'ro', reader => '_get_pin_result', writer => '_set_pin_result' );
 
+# this should normally only be called for field tests
 sub build_result
 {
    my $self = shift;
    my @parent = ( 'parent' => $self->parent->result )
          if ( $self->parent && $self->parent->result );
-   return HTML::FormHandler::Field::Result->new( name => $self->name, 
+   my $result = HTML::FormHandler::Field::Result->new( name => $self->name, 
       field_def => $self, @parent );
+   $self->_set_pin_result($result);
+   return $result;
 }
 
 sub input
@@ -576,7 +580,7 @@ sub fif
    return '' if $self->password;
    return unless $result || $self->has_result;
    my $lresult = $result || $self->result;
-   if ( ( $self->has_input && !$self->fif_from_value ) ||
+   if ( ( $self->has_result && $self->has_input && !$self->fif_from_value ) ||
       ( $self->fif_from_value && !defined $lresult->value ) )
    {
       return defined $lresult->input ? $lresult->input : '';
@@ -965,6 +969,7 @@ sub apply_rendering_widgets
 {
    my $self = shift;
 
+   return unless $self->widget;
    $self->meta->make_mutable;                      
    my $widget = $self->widget_class( $self->widget );
    my $widget_role = 'HTML::FormHandler::Widget::' . $widget;

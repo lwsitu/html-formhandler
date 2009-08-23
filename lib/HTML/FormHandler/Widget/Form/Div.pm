@@ -20,13 +20,31 @@ has 'auto_fieldset' => ( isa => 'Bool', is => 'rw', default => 1 );
 
 sub render
 {
-   my ( $self, $result ) = @_;
+   my ( $self ) = @_;
 
-   $result ||= $self->result;
-   my $output = $self->form->render_start;
+   my $result;
+   my $form;
+   if( $self->DOES('HTML::FormHandler::Result') ) {
+      $result = $self;
+      $form = $self->form;
+   }
+   else {
+      $result = $self->result; 
+      $form = $self;
+   }
+   my $output = $form->render_start;
 
-   foreach my $field ( $self->form->sorted_fields ) {
-      $output .= $field->render($result->field($field->name)); 
+   foreach my $field ( $form->sorted_fields ) {
+      my $fld_result;
+$DB::single=1;
+      if( $field->has_flag('has_static_value') ) {
+         $fld_result = $field->result;
+      }
+      else {
+         $fld_result = $result->field($field->name);
+      }
+      die "no result for " . $field->name unless $fld_result;
+      $output .= $field->render($fld_result);
    }
 
    $output .= $self->render_end;

@@ -6,7 +6,7 @@ use_ok( 'HTML::FormHandler::Field::Submit' );
 
 my $field = HTML::FormHandler::Field::Submit->new(name => 'submit');
 is( $field->value, 'Save', 'get right value');
-ok( $field->has_result, 'no result');
+ok( $field->result, 'returns result');
 
 {
    package Test::Submit;

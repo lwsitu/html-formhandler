@@ -584,13 +584,22 @@ sub build_result {
 
    my $result = HTML::FormHandler::Result->new( name => $self->name, form => $self );
    if( $self->widget_form ) {
-      my $render_role = 'HTML::FormHandler::Widget::Form::' . 
-                     $self->widget_class($self->widget_form);
-      $result->meta->make_mutable;                      
-      Class::MOP::load_class($render_role) or
-         die "Could not load form render role $render_role for result " . $self->name;
-      $render_role->meta->apply($self);
-      $result->meta->make_immutable;
+      my @name_spaces;
+      push @name_spaces, ref $self->widget_name_space ? 
+           @{$self->widget_name_space} : $self->widget_name_space if $self->widget_name_space;
+      push @name_spaces, 'HTML::FormHandler::Widget';
+      my $meta;
+      foreach my $ns ( @name_spaces ) {
+         my $render_role = $ns . '::Form::' .  $self->widget_class($self->widget_form);
+         $meta = Class::MOP::load_class($render_role);
+         if( $meta->isa('Moose::Meta::Class') )
+         {
+            $result->meta->make_mutable;                      
+            $render_role->meta->apply($self);
+            $result->meta->make_immutable;
+            last;
+         }
+      }
   }
   return $result;
 }

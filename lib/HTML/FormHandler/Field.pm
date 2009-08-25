@@ -7,6 +7,7 @@ use HTML::FormHandler::Field::Result;
 
 with 'HTML::FormHandler::Validate';
 with 'HTML::FormHandler::Validate::Actions';
+with 'HTML::FormHandler::Widget::ApplyRole';
 
 our $VERSION = '0.02';
 
@@ -652,6 +653,7 @@ sub build_html_name
 }
 has 'widget'         => ( isa => 'Str',  is => 'rw' );
 has 'widget_wrapper' => ( isa => 'Str',  is => 'rw', default => 'div' );
+has 'widget_name_space' => ( isa => 'Str', is => 'rw' );
 has 'order'          => ( isa => 'Int',  is => 'rw', default => 0 );
 has 'inactive'       => ( isa => 'Bool', is => 'rw', clearer => 'clear_inactive' );
 has 'unique'         => ( isa => 'Bool', is => 'rw' );
@@ -970,27 +972,11 @@ sub apply_rendering_widgets
    my $self = shift;
 
    return unless $self->widget;
-   $self->meta->make_mutable;                      
-   my $widget = $self->widget_class( $self->widget );
-   my $widget_role = 'HTML::FormHandler::Widget::' . $widget;
-   Class::MOP::load_class($widget_role) or
-      die "Could not load widget role $widget_role for field " . $self->name;
-   $widget_role->meta->apply($self);
-   my $widget_wrapper = $self->widget_class( $self->widget_wrapper );
-   my $wrapper_role = 'HTML::FormHandler::Widget::Wrapper::' . $widget_wrapper;
-   Class::MOP::load_class($wrapper_role) or
-      die "Could not load widget role $wrapper_role for field " . $self->name;
-   $wrapper_role->meta->apply($self);
-   $self->meta->make_immutable;    
-}
+   $self->apply_widget_role( $self, $self->widget );
+   return unless $self->widget_wrapper;
+   $self->apply_widget_role( $self, $self->widget_wrapper, 'Wrapper' );
+   return;
 
-sub widget_class
-{
-   my ( $self, $widget ) = @_;
-   return unless $widget;
-   $widget =~ s/^(\w{1})/\u$1/g;
-   $widget =~ s/_(\w{1})/\u$1/g;
-   return $widget;
 }
 
 =head1 AUTHORS

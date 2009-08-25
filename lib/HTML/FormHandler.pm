@@ -5,6 +5,7 @@ use MooseX::AttributeHelpers;
 with 'HTML::FormHandler::Model', 'HTML::FormHandler::Fields',
    'HTML::FormHandler::Validate::Actions';
 with 'HTML::FormHandler::InitResult';
+with 'HTML::FormHandler::Widget::ApplyRole';
 
 use Carp;
 use Class::MOP;
@@ -584,24 +585,9 @@ sub build_result {
 
    my $result = HTML::FormHandler::Result->new( name => $self->name, form => $self );
    if( $self->widget_form ) {
-      my @name_spaces;
-      push @name_spaces, ref $self->widget_name_space ? 
-           @{$self->widget_name_space} : $self->widget_name_space if $self->widget_name_space;
-      push @name_spaces, 'HTML::FormHandler::Widget';
-      my $meta;
-      foreach my $ns ( @name_spaces ) {
-         my $render_role = $ns . '::Form::' .  $self->widget_class($self->widget_form);
-         $meta = Class::MOP::load_class($render_role);
-         if( $meta->isa('Moose::Meta::Class') )
-         {
-            $result->meta->make_mutable;                      
-            $render_role->meta->apply($self);
-            $result->meta->make_immutable;
-            last;
-         }
-      }
-  }
-  return $result;
+      $self->apply_widget_role( $result, $self->widget_form, 'Form' );
+   }
+   return $result;
 }
 has 'widget_name_space' => ( is => 'ro', isa => 'Str|ArrayRef[Str]' );
 has 'widget_form' => ( is => 'ro', isa => 'Str', default => 'div' );
@@ -689,7 +675,8 @@ sub BUILD
 {
    my $self = shift;
 
-   $self->apply_rendering_widgets;
+   $self->apply_widget_role( $self, $self->widget_form, 'Form' )
+      if $self->widget_form;
    $self->_build_fields;    # create the form fields
    return if defined $self->item_id && !$self->item;
    # load values from object (if any)
@@ -958,28 +945,6 @@ sub _munge_params
    $self->{params} = $new_params;
 }
 
-sub apply_rendering_widgets
-{
-   my $self = shift;
-
-   return unless $self->widget_form;
-   $self->meta->make_mutable;                      
-   my $widget = $self->widget_class( $self->widget_form );
-   my $widget_role = 'HTML::FormHandler::Widget::Form::' . $widget;
-   Class::MOP::load_class($widget_role) or
-      die "Could not load widget role $widget_role for form " . $self->name;
-   $widget_role->meta->apply($self);
-   $self->meta->make_immutable;    
-}
-
-sub widget_class
-{
-   my ( $self, $widget ) = @_;
-   return unless $widget;
-   $widget =~ s/^(\w{1})/\u$1/g;
-   $widget =~ s/_(\w{1})/\u$1/g;
-   return $widget;
-}
 
 =head1 SUPPORT
 

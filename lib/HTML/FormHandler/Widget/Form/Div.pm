@@ -36,7 +36,6 @@ sub render
 
    foreach my $field ( $form->sorted_fields ) {
       my $fld_result;
-$DB::single=1;
       if( $field->has_flag('has_static_value') ) {
          $fld_result = $field->result;
       }

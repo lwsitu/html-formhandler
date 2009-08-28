@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Checkbox;
+package HTML::FormHandler::Widget::Field::Checkbox;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

@@ -1,4 +1,4 @@
-package Widget::TestWidget;
+package Widget::Field::TestWidget;
 
 use Moose::Role;
 

@@ -1,4 +1,4 @@
-package Widget::Omega;
+package Widget::Field::Omega;
 
 use Moose::Role;
 

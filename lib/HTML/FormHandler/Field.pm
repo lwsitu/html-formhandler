@@ -972,7 +972,7 @@ sub apply_rendering_widgets
    my $self = shift;
 
    return unless $self->widget;
-   $self->apply_widget_role( $self, $self->widget );
+   $self->apply_widget_role( $self, $self->widget, 'Field' );
    return unless $self->widget_wrapper;
    $self->apply_widget_role( $self, $self->widget_wrapper, 'Wrapper' );
    return;

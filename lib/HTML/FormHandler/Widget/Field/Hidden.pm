@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Hidden;
+package HTML::FormHandler::Widget::Field::Hidden;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

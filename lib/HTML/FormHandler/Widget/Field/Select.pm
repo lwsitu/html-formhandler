@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Select;
+package HTML::FormHandler::Widget::Field::Select;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

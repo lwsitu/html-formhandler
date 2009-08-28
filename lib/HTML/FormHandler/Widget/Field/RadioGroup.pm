@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::RadioGroup;
+package HTML::FormHandler::Widget::Field::RadioGroup;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

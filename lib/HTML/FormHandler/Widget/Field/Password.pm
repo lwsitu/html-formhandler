@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Password;
+package HTML::FormHandler::Widget::Field::Password;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

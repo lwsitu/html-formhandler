@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Text;
+package HTML::FormHandler::Widget::Field::Text;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 sub render
 {

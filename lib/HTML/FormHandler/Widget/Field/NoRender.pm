@@ -1,4 +1,4 @@
-package HTML::FormHandler::Widget::NoRender;
+package HTML::FormHandler::Widget::Field::NoRender;
 
 use Moose::Role;
 

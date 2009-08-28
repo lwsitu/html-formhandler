@@ -1,7 +1,6 @@
-package HTML::FormHandler::Widget::Submit;
+package HTML::FormHandler::Widget::Field::Submit;
 
 use Moose::Role;
-#with 'HTML::FormHandler::Widget::Wrapper::Div';
 
 has 'no_render_label' => ( is => 'ro', lazy => 1, default => 1 );
 

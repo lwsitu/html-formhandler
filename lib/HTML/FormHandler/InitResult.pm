@@ -39,7 +39,7 @@ sub _result_from_input
 
    # transfer the input values to the input attributes of the
    # subfields
-   return unless ( defined $input || $exists );
+   return unless ( defined $input || $exists || $self->has_fields );
    $self_result->_set_input($input);
    if ( ref $input eq 'HASH' ) {
       foreach my $field ( $self->fields ) {
@@ -64,7 +64,7 @@ sub _result_from_object
 {
    my ( $self, $self_result, $item ) = @_;
 
-   return unless $item;
+   return unless ($item || $self->has_fields); # empty fields for compounds
    my $my_value;
    for my $field ( $self->fields ) {
 #      next if $field->parent && $field->parent != $self;

@@ -714,7 +714,7 @@ sub process
    return $self->validated;
 }
 
-sub get_result
+sub run
 {
    my $self = shift;
    $self->process( @_ );

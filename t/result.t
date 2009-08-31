@@ -52,7 +52,7 @@ ok( $result->has_input, 'result still has input');
 my $num_errors = $form->num_errors;
 
 $result = $form->run($good);
-ok( !$form->has_result, 'has result after been cleared');
+ok( !$form->processed, 'has result after been cleared');
 ok( !$form->validated, 'form has been cleared' );
 
 # field still points to existing result

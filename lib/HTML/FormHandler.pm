@@ -575,7 +575,7 @@ has 'result' => ( isa => 'HTML::FormHandler::Result', is => 'ro',
    writer => '_set_result',
    clearer => 'clear_result',
    lazy => 1, builder => 'build_result',
-   predicate => 'has_result',
+   predicate => 'processed',
    handles => [ 'input', '_set_input',  '_clear_input', 'has_input',
                 'value', '_set_value', '_clear_value', 'has_value',
                 'add_result', 'results',
@@ -598,7 +598,7 @@ has 'widget_wrapper' => ( is => 'ro', isa => 'Str', default => 'Div' );
 has 'init_object' => ( is => 'rw', clearer => 'clear_init_object' );
 has 'reload_after_update' => ( is => 'rw', isa => 'Bool' );
 # flags
-has [ 'verbose', 'processed', 'did_init_obj' ] =>
+has [ 'verbose', 'did_init_obj' ] =>
    ( isa => 'Bool', is => 'rw' );
 has 'user_data' => ( isa => 'HashRef', is => 'rw' );
 has 'ctx' => ( is => 'rw', weak_ref => 1, clearer => 'clear_ctx' );
@@ -746,7 +746,7 @@ sub fif
 {
    my ( $self, $prefix, $node ) = @_;
 
-   return unless $self->has_result;
+   return unless $self->processed;
    if ( !defined $node ) {
       $node   = $self;
       $prefix = '';

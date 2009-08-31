@@ -710,7 +710,6 @@ sub process
    $self->update_model  if $self->validated;
    $self->after_update_model if $self->validated;
    $self->dump_fields   if $self->verbose;
-   $self->processed(1);
    return $self->validated;
 }
 
@@ -737,7 +736,6 @@ sub clear
    $self->clear_data;
    $self->clear_params;
    $self->clear_ctx;
-   $self->processed(0);
    $self->did_init_obj(0);
    $self->clear_result;
 }

@@ -1,7 +1,6 @@
 package HTML::FormHandler;
 
 use Moose;
-use MooseX::AttributeHelpers;
 with 'HTML::FormHandler::Model', 'HTML::FormHandler::Fields',
     'HTML::FormHandler::BuildFields',
     'HTML::FormHandler::Validate::Actions';
@@ -594,9 +593,9 @@ sub build_result {
     }
     return $result;
 }
-has 'widget_name_space' => ( is => 'ro', isa => 'Str|ArrayRef[Str]' );
+has 'widget_name_space' => ( is => 'ro', isa => 'ArrayRef[Str]', default => sub {[]} );
 has 'widget_form'       => ( is => 'ro', isa => 'Str', default => 'Simple' );
-has 'widget_wrapper'    => ( is => 'ro', isa => 'Str', default => 'Div' );
+has 'widget_wrapper'    => ( is => 'ro', isa => 'Str', default => 'Simple' );
 
 # object with which to initialize
 has 'init_object'         => ( is => 'rw', clearer => 'clear_init_object' );
@@ -610,38 +609,45 @@ has 'language_handle' => (
     is      => 'rw',
     builder => 'build_language_handle'
 );
-has 'html_prefix'   => ( isa => 'Bool', is  => 'rw' );
-has 'active_column' => ( isa => 'Str',  is  => 'rw' );
-has 'http_method'   => ( isa => 'Str',  is  => 'rw', default => 'post' );
+has 'html_prefix'   => ( isa => 'Bool', is  => 'ro' );
+has 'active_column' => ( isa => 'Str',  is  => 'ro' );
+has 'http_method'   => ( isa => 'Str',  is  => 'ro', default => 'post' );
 has 'enctype'       => ( is  => 'rw',   isa => 'Str' );
+has 'html_tags'         => ( 
+    traits => ['Hash'],
+    isa => 'HashRef', 
+    is => 'ro',
+    default => sub {{}},
+    handles => {
+      get_tag => 'get',
+      set_tag => 'set',
+      tag_exists => 'exists',
+    },
+);
 has 'action' => ( is => 'rw' );
-has 'submit' => ( is => 'rw' );
 has 'params' => (
-    metaclass  => 'Collection::Hash',
+    traits     => ['Hash'],
     isa        => 'HashRef',
     is         => 'rw',
     default    => sub { {} },
-    auto_deref => 1,
     trigger    => sub { shift->_munge_params(@_) },
-    provides   => {
-        set    => 'set_param',
-        get    => 'get_param',
-        clear  => 'clear_params',
-        delete => 'delete_param',
-        empty  => 'has_params',
+    handles   => {
+        set_param => 'set',
+        get_param => 'get',
+        clear_params => 'clear',
+        has_params => 'count',
     },
 );
 sub submitted { shift->has_params }
 has 'dependency' => ( isa => 'ArrayRef', is => 'rw' );
 has '_required' => (
-    metaclass  => 'Collection::Array',
+    traits     => ['Array'],
     isa        => 'ArrayRef[HTML::FormHandler::Field]',
     is         => 'rw',
     default    => sub { [] },
-    auto_deref => 1,
-    provides   => {
-        clear => 'clear_required',
-        push  => 'add_required'
+    handles   => {
+        clear_required => 'clear',
+        add_required => 'push',
     }
 );
 
@@ -753,7 +759,7 @@ sub error_field_names {
 sub errors {
     my $self         = shift;
     my @error_fields = $self->error_fields;
-    return map { $_->errors } @error_fields;
+    return map { $_->all_errors } @error_fields;
 }
 
 sub uuid {
@@ -770,8 +776,7 @@ sub validate_form {
     $self->_fields_validate;
     $self->_apply_actions;
     $self->validate();         # empty method for users
-                               # model specific validation
-    $self->validate_model;
+    $self->validate_model;     # model specific validation
     $self->_clear_dependency;
     $self->get_error_fields;
     $self->ran_validation(1);
@@ -807,9 +812,9 @@ sub setup_form {
         $self->item( $self->build_item );
     }
     # initialization of Repeatable fields and Select options
-    # will be done in init_object when there's an initial object
-    # in validation routines when there are params
-    # and by _init for empty forms
+    # will be done in _result_from_object when there's an initial object
+    # in _result_from_input when there are params
+    # and by _result_from_fields for empty forms
     $self->clear_result;
     if ( !$self->did_init_obj ) {
         if ( $self->init_object || $self->item ) {
@@ -872,7 +877,7 @@ sub _set_dependency {
 sub _clear_dependency {
     my $self = shift;
 
-    $_->required(0) for $self->_required;
+    $_->required(0) for @{$self->_required};
     $self->clear_required;
 }
 

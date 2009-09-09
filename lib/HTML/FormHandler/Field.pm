@@ -1,7 +1,6 @@
 package HTML::FormHandler::Field;
 
 use HTML::FormHandler::Moose;
-use MooseX::AttributeHelpers;
 use HTML::FormHandler::I18N;    # only needed if running without a form object.
 use HTML::FormHandler::Field::Result;
 
@@ -192,8 +191,8 @@ parents for the fields they contain.
 =item errors
 
 Returns the error list for the field. Also provides 'num_errors',
-'has_errors', 'push_errors' and 'clear_errors' from Collection::Array
-metaclass. Use 'add_error' to add an error to the array if you
+'has_errors', 'push_errors' and 'clear_errors' from Array
+trait. Use 'add_error' to add an error to the array if you
 want to use a MakeText language handle. Default is an empty list.
 
 =item add_error
@@ -279,7 +278,7 @@ use the 'validate_addresses_city' method for validation.
 =item set_init
 
 The name of the method in the form that provides a field's initial value.
-Default is C<< 'init_' . $field->name >>. Periods replaced by underscores.
+Default is C<< 'init_value_' . $field->name >>. Periods replaced by underscores.
 
 =back
 
@@ -459,12 +458,13 @@ a transformed value.
 
 =head2 trim
 
-A Hashref containing a transfrom to trim the field. By default
+An action to trim the field. By default
 this contains a transform to strip beginning and trailing spaces.
 Set this attribute to null to skip trimming, or supply a different
 transform.
 
   trim => { transform => sub { } }
+  trim => { type => MyTypeConstraint }
 
 Trimming is performed before any other defined actions.
 
@@ -520,13 +520,13 @@ errors with C<< $field->add_error >>.
 
 has 'name' => ( isa => 'Str', is => 'rw', required => 1 );
 has 'type' => ( isa => 'Str', is => 'rw', default => sub { ref shift } );
-has 'parent'           => ( is  => 'rw',   predicate => 'has_parent' );
-has 'errors_on_parent' => ( isa => 'Bool', is        => 'rw' );
+has 'parent' => ( is  => 'rw',   predicate => 'has_parent' );
 sub has_fields { }
 has 'input_without_param' => (
     is        => 'rw',
     predicate => 'has_input_without_param'
 );
+has 'not_nullable' => ( is => 'ro', isa => 'Bool' );
 has 'init_value' => ( is => 'rw', clearer => 'clear_init_value' );
 has 'result' => (
     isa       => 'HTML::FormHandler::Field::Result',
@@ -539,7 +539,7 @@ has 'result' => (
     writer    => '_set_result',
     handles   => [
         '_set_input',   '_clear_input', '_set_value', '_clear_value',
-        'errors',       'push_errors',  'num_errors', 'has_errors',
+        'errors',       'all_errors',   'push_errors',  'num_errors', 'has_errors',
         'clear_errors', 'validated',
     ],
 );
@@ -573,16 +573,16 @@ sub build_result {
 
 sub input {
     my $self = shift;
-    return unless $self->has_result;
-    return $self->_set_input(@_) if @_;
-    return $self->result->input;
+    my $result = $self->result;
+    return $result->_set_input(@_) if @_;
+    return $result->input;
 }
 
 sub value {
     my $self = shift;
-    return unless $self->has_result;
-    return $self->_set_value(@_) if @_;
-    return $self->result->value;
+    my $result = $self->result;
+    return $result->_set_value(@_) if @_;
+    return $result->value;
 }
 # for compatibility. deprecate and remove at some point
 sub clear_input { shift->_clear_input }
@@ -671,12 +671,29 @@ sub build_html_name {
     return $prefix . $self->full_name;
 }
 has 'widget'            => ( isa => 'Str',  is => 'rw' );
-has 'widget_wrapper'    => ( isa => 'Str',  is => 'rw', default => 'Div' );
-has 'widget_name_space' => ( isa => 'Str',  is => 'rw' );
+has 'widget_wrapper'    => ( isa => 'Str',  is => 'rw' );
+has 'html_tags'         => ( 
+    traits => ['Hash'],
+    isa => 'HashRef', 
+    is => 'ro',
+    default => sub {{}},
+    handles => {
+      get_tag => 'get',
+      set_tag => 'set',
+      tag_exists => 'exists',
+    },
+);
+has 'widget_name_space' => ( 
+    traits => ['Array'],
+    isa => 'ArrayRef[Str]',  
+    is => 'ro',
+    default => sub {[]},
+    handles => {
+        add_widget_name_space => 'push',
+    }, 
+);
 has 'order'             => ( isa => 'Int',  is => 'rw', default => 0 );
 has 'inactive'          => ( isa => 'Bool', is => 'rw', clearer => 'clear_inactive' );
-has 'unique'            => ( isa => 'Bool', is => 'rw' );
-has 'unique_message'    => ( isa => 'Str',  is => 'rw' );
 has 'id'                => ( isa => 'Str',  is => 'rw', lazy => 1, builder => 'build_id' );
 sub build_id { shift->html_name }
 has 'javascript' => ( isa => 'Str',  is => 'rw' );
@@ -745,24 +762,21 @@ has 'deflation' => (
     predicate => 'has_deflation',
 );
 has 'trim' => (
-    isa     => 'HashRef',
     is      => 'rw',
-    default => sub {
-        {
-            transform => sub {
-                my $value = shift;
-                return unless defined $value;
-                my @values = ref $value eq 'ARRAY' ? @$value : ($value);
-                for (@values) {
-                    next if ref $_;
-                    s/^\s+//;
-                    s/\s+$//;
-                }
-                return ref $value eq 'ARRAY' ? \@values : $values[0];
-            },
-        };
-    }
+    default => sub { { transform => \&default_trim } }
 );
+
+sub default_trim {
+    my $value = shift;
+    return unless defined $value;
+    my @values = ref $value eq 'ARRAY' ? @$value : ($value);
+    for (@values) {
+        next if ref $_;
+        s/^\s+//;
+        s/\s+$//;
+    }
+    return ref $value eq 'ARRAY' ? \@values : $values[0];
+}
 
 sub BUILD {
     my ( $self, $params ) = @_;
@@ -952,10 +966,22 @@ sub dump {
 sub apply_rendering_widgets {
     my $self = shift;
 
-    return unless $self->widget;
-    $self->apply_widget_role( $self, $self->widget, 'Field' );
-    return unless $self->widget_wrapper;
-    $self->apply_widget_role( $self, $self->widget_wrapper, 'Wrapper' );
+    if( $self->form ) {
+        $self->add_widget_name_space( @{$self->form->widget_name_space} );
+        foreach my $key ( keys %{$self->form->html_tags} ) {
+            $self->set_tag( $key, $self->form->html_tags->{$key} )
+                 unless $self->tag_exists($key);
+        }
+    }
+    if ( $self->widget ) {
+        $self->apply_widget_role( $self, $self->widget, 'Field' );
+    }
+    my $widget_wrapper = $self->widget_wrapper;
+    $widget_wrapper ||= $self->form->widget_wrapper if $self->form;
+    $widget_wrapper ||= 'Simple';
+    unless ( $widget_wrapper eq 'none' ) {
+        $self->apply_widget_role( $self, $widget_wrapper, 'Wrapper' );
+    }
     return;
 
 }

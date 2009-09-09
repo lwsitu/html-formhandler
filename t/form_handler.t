@@ -37,6 +37,8 @@ use_ok('HTML::FormHandler');
 
 my $form = My::Form->new;
 
+=pod
+
 is( $form->field('optname')->temp, 'Second', 'got second optname field' );
 
 ok( !$form->process, 'Empty data' );
@@ -58,6 +60,8 @@ is( $form->field('my_selected')->value, 0,         'correct value for unselected
 
 ok( !$form->process( {} ), 'form doesn\'t validate with empty params' );
 is( $form->num_errors, 0, 'form doesn\'t have errors with empty params' );
+
+=cut
 
 my $bad_1 = {
    reqname => '',
@@ -136,7 +140,7 @@ if ( !$form->process( params => { bar => 1, } ) )
    my @fields = $form->error_fields;
    if ( is( scalar @fields, 1, "there is an error field" ) )
    {
-      my @errors = $fields[0]->errors;
+      my @errors = $fields[0]->all_errors;
       is( scalar @errors, 1, "there is an error" );
 
       is( $errors[0], $fields[0]->label . " field is required", "error messages match" );

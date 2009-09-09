@@ -117,7 +117,7 @@ Renders field with 'submit' widget
 
 has 'auto_fieldset' => ( isa => 'Bool', is => 'rw', default => 1 );
 has 'label_types' => (
-    metaclass => 'Collection::Hash',
+    traits    => ['Hash'], 
     isa       => 'HashRef[Str]',
     is        => 'rw',
     default   => sub {
@@ -131,8 +131,7 @@ has 'label_types' => (
             compound    => 'legend'
         };
     },
-    auto_deref => 1,
-    provides   => { get => 'get_label_type', },
+    handles   => { get_label_type => 'get' },
 );
 
 sub render {
@@ -214,7 +213,7 @@ sub render_field_struct {
         $output .= '<legend>' . $field->label . '</legend>';
     }
     $output .= $rendered_field;
-    $output .= qq{\n<span class="error_message">$_</span>} for $field->errors;
+    $output .= qq{\n<span class="error_message">$_</span>} for $field->all_errors;
     if ( $l_type eq 'legend' ) {
         $output .= '</fieldset>';
     }

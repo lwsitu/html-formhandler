@@ -89,5 +89,5 @@ around '_result_from_input' => sub {
 };
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
+use namespace::autoclean;
 1;

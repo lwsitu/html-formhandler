@@ -114,5 +114,5 @@ the same terms as Perl itself.
 
 =cut
 
-no Moose::Role;
+use namespace::autoclean;
 1;

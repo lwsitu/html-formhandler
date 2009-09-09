@@ -217,5 +217,5 @@ sub dump_validated {
     }
 }
 
-no Moose::Role;
+use namespace::autoclean;
 1;

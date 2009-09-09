@@ -24,5 +24,5 @@ sub wrap_field {
     return $output;
 }
 
-no Moose::Role;
+use namespace::autoclean;
 1;

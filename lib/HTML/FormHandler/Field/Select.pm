@@ -317,9 +317,7 @@ sub _load_options {
         $self->options_from('method');
     }
     elsif ( $self->form ) {
-        my $full_accessor;
-        $full_accessor = $self->parent->full_accessor if $self->parent;
-        @options = $self->form->lookup_options( $self, $full_accessor );
+        @options = $self->lookup_options() if $self->can( 'lookup_options' );
         $self->options_from('model') if scalar @options;
     }
     return unless @options;    # so if there isn't an options method and no options

@@ -275,6 +275,9 @@ sub _update_or_create {
 sub new_field_with_traits {
     my ( $self, $class, $field_attr ) = @_;
 
+    if( $self->can( 'model_new_field_hook' ) ) {
+        $self->model_new_field_hook( $class, $field_attr );
+    }
     my $widget = $field_attr->{widget};
     my $field;
     unless( $widget ) {

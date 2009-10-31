@@ -857,8 +857,8 @@ sub _result_from_object {
 
     $self->_set_result($result);
 
-    if ( $self->form ) {
-        $self->form->init_value( $self, $value );
+    if ( $self->can( 'init_value_with_fix' ) ) {
+        $self->init_value_with_fix( $value );
     }
     else {
         $self->init_value($value);
@@ -976,17 +976,17 @@ sub dump {
     warn "HFH: label: ",  $self->label,  "\n";
     warn "HFH: widget: ", $self->widget, "\n";
     my $v = $self->value;
-    warn "HFH: value: ", Data::Dumper::Dumper $v if $v;
+    warn "HFH: value: ", Data::Dumper::Dumper($v) if $v;
     my $iv = $self->init_value;
-    warn "HFH: init_value: ", Data::Dumper::Dumper $iv if $iv;
+    warn "HFH: init_value: ", Data::Dumper::Dumper($iv) if $iv;
     my $i = $self->input;
-    warn "HFH: input: ", Data::Dumper::Dumper $i if $i;
+    warn "HFH: input: ", Data::Dumper::Dumper($i) if $i;
     my $fif = $self->fif;
-    warn "HFH: fif: ", Data::Dumper::Dumper $fif if $fif;
+    warn "HFH: fif: ", Data::Dumper::Dumper($fif) if $fif;
 
     if ( $self->can('options') ) {
         my $o = $self->options;
-        warn "HFH: options: " . Data::Dumper::Dumper $o;
+        warn "HFH: options: " . Data::Dumper::Dumper( $o );
     }
 }
 

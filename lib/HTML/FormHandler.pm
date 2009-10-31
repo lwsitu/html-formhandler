@@ -904,14 +904,6 @@ sub build_active {
 
 sub fif { shift->fields_fif(@_) }
 
-# this is subclassed by the model, which may
-# do a lot more than this
-sub init_value {
-    my ( $self, $field, $value ) = @_;
-    $field->init_value($value);
-    $field->_set_value($value);
-}
-
 sub _set_dependency {
     my $self = shift;
 

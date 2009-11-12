@@ -1,6 +1,7 @@
 package HTML::FormHandler::BuildFields;
 
-use Moose::Role;
+use HTML::FormHandler::Moose::Role;
+use Class::Load ('try_load_class' );
 
 =head1 NAME
 
@@ -18,6 +19,7 @@ Internal code only. This role has no user interfaces.
 has 'fields_from_model' => ( isa => 'Bool', is => 'rw' );
 
 has 'field_list' => ( isa => 'HashRef|ArrayRef', is => 'rw', default => sub { {} } );
+has 'reflect_class' => ( isa => 'Str', is => 'ro' );
 
 sub has_field_list {
     my ( $self, $field_list ) = @_;
@@ -37,6 +39,7 @@ sub has_field_list {
 sub _build_fields {
     my $self = shift;
 
+    $self->do_reflector if $self->reflect_class; 
     my $meta_flist = $self->_build_meta_field_list;
     $self->_process_field_array( $meta_flist, 0 ) if $meta_flist;
     my $flist = $self->has_field_list;
@@ -61,6 +64,18 @@ sub _build_fields {
         $field->order($order) unless $field->order;
         $order++;
     }
+}
+
+sub do_reflector {
+    my $self = shift;
+
+    try_load_class( 'HTML::FormHandler::Reflector' ) || die "Reflector not found";
+    my $ref_class = $self->reflect_class;
+    my $reflector = HTML::FormHandler::Reflector->new({
+        metaclass    => $ref_class->meta, 
+        target_class => __PACKAGE__,
+    });
+    $reflector->reflect;
 }
 
 # process all the stupidly many different formats for field_list

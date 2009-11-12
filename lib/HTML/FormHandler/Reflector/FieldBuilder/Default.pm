@@ -2,6 +2,18 @@ use MooseX::Declare;
 
 namespace HTML::FormHandler::Reflector;
 
+=head1 NAME
+
+HTML::FormHandler::Reflector::FieldBuilder::Default
+
+=head1 SYNOPSIS
+
+Use the default typemap (L<HTML::FormHandler::Reflector::TypeMap::Default>),
+the 'Field' and 'NoField' meta attribute traits, and the SkipField, NameFromAttribute,
+TypeFromConstraint, ValidateWithConstraint, and OptionsFromTrait FieldBuilder entries.
+
+=cut
+
 class ::FieldBuilder::Default
   extends ::FieldBuilder {
     use MooseX::Types::Moose qw(ClassName ArrayRef);

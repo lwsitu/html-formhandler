@@ -1,5 +1,15 @@
 use MooseX::Declare;
 
+=head1 NAME
+
+HTML::FormHandler::Reflector::FieldBuilder::Entry::RequiredFromAttribute
+
+=head1 SYNOPSIS
+
+Sets the field to required if the attribute is required
+
+=cut
+
 namespace HTML::FormHandler::Reflector::FieldBuilder;
 
 class ::Entry::RequiredFromAttribute

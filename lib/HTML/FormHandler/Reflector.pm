@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 HTML::FormHandler::Reflector
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 This package will introspect Moose classes to automatically create the fields
 in a L<HTML::FormHandler> form.
@@ -51,7 +51,7 @@ in a L<HTML::FormHandler> form.
   );
 
 Create a reflector on the class in a FormHandler form, and
-reflect the classes attributes:
+reflect the class's attributes:
 
    package FooForm;
    use Moose;
@@ -75,20 +75,38 @@ and submit.
 
 =head1 DESCRIPTION
 
-Active fields will not be created when:
+=head1 Default FieldBuilder
+
+L<HTML::FormHandler::Reflector::FieldBuilder::Default> provides a set of 
+L<HTML::FormHandler::Reflector::FieldBuilder::Entry> classes that use various methods
+to create the desired FormHandler fields. Currently it uses SkipField,
+NameFromAttribute, TypeFromConstraint, ValidateWithConstraint, and
+OptionsFromTrait manipulations.
+
+Using the SkipField entry built by the default FieldBuilder, active fields
+will not be created when:
 
   Attribute is read only
   Attribute does HTML::FormHandler::NoField trait
   Attribute name starts with an underscore
 
-Fields will have the default type (Text) unless the Field type is is specified
-in the 'form' hash. 
+The TypeFromConstraint entry will build fields with the default type (Text) unless 
+the Field type is specified in the 'form' hash (without a more specific TypeMap). 
 
-Attributes that are marked 'required' ...
+The ValidateWithConstraint entry causes the Moose type of the attribute ('isa') to
+be pulled into the created fields using the 'apply' syntax. An attribute with the 
+Str type will have the equivalent of: C<< apply => [Str] >>.
 
-The Moose type of the attribute ('isa') will be pulled into the created fields
-using the 'apply' syntax. An attribute with the Str type will have the equivalent
-of: C<< apply => [Str] >>.
+OptionsFromTrait will pull the options for a Select field from the method specified
+on the attribute with 'options_reader'.
+
+The FieldBuilder entry RequiredFromAttribute will mark fields 'required' if the 
+attribute is 'required', but is not installed into the default FieldBuilder.
+
+=head2 Customizing the FieldBuilder
+
+You can create your own TypeMap entries and pass them into the default Typemap,
+or create your own TypeMap and pass it into the default FieldBuilder.
 
 =cut
 

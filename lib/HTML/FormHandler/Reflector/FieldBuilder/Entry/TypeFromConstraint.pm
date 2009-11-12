@@ -2,6 +2,16 @@ use MooseX::Declare;
 
 namespace HTML::FormHandler::Reflector::FieldBuilder;
 
+=head1 NAME
+
+HTML::FormHandler::Reflector::FieldBuilder::Entry::TypeFromConstraint
+
+=head1 SYNOPSIS
+
+Uses typemap to translate from Moose type to FormHandler field type.
+
+=cut
+
 class ::Entry::TypeFromConstraint
   with ::Entry {
     use HTML::FormHandler::Reflector::Types qw(TypeMap);

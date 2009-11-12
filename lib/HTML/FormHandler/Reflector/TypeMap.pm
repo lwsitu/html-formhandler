@@ -1,5 +1,18 @@
 use MooseX::Declare;
 
+=head1 NAME
+
+HTML::FormHandler::Reflector::TypeMap
+
+=head1 SYNOPSIS
+
+Attributes: entries, subtype_entries.
+
+'subtype_entries' match all subtypes in the L<Moose::Util::TypeConstraint>
+type hierarchy. 'entries' will do an exact match on the type.
+
+=cut
+
 class HTML::FormHandler::Reflector::TypeMap {
     use Scalar::Util qw(refaddr);
     use Hash::Util::FieldHash::Compat qw(idhash);

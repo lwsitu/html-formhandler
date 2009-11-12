@@ -9,6 +9,89 @@ use aliased 'HTML::FormHandler::Reflector::FieldBuilder::Default', 'DefaultField
 
 use namespace::autoclean;
 
+=head1 NAME
+
+HTML::FormHandler::Reflector
+
+=head1 SYNOPSYS
+
+This package will introspect Moose classes to automatically create the fields
+in a L<HTML::FormHandler> form.
+
+  package Foo;
+  use Moose;
+  use MooseX::Types::Moose qw/Str Num/;
+  use namespace::autoclean;
+
+  # does not create field because it has no writer
+  has bar => (is => 'ro', isa => Str);
+  # creates field because 'rw'
+  has baz => (is => 'rw', isa => Num);
+
+  # does not create field because of NoField trait
+  has corge => (
+      traits   => [qw(FormHandler::NoField)],
+      is       => 'rw',
+      init_arg => undef,
+      lazy     => 1,
+      default  => sub { shift->bar },
+  );
+
+  # 'FormHandler::Field' trait allows declaring field attributes
+  # with 'form' hashref
+  has fred => (
+      traits   => [qw(FormHandler::Field)],
+      is       => 'rw',
+      isa      => Str,
+      required => 1,
+      form     => {
+          label => 'Grault',
+          type  => 'TextArea',
+      },
+  );
+
+Create a reflector on the class in a FormHandler form, and
+reflect the classes attributes:
+
+   package FooForm;
+   use Moose;
+   use HTML::FormHandler::Reflector;
+   use HTML::FormHandler::Moose;
+
+   extends 'HTML::FormHandler';
+
+
+   my $reflector = HTML::FormHandler::Reflector->new({
+       metaclass    => Foo->meta,
+       target_class => __PACKAGE__,
+   });
+
+   $reflector->reflect;
+
+   has_field submit => (type => 'Submit');
+
+The form created this way will have three active fields: baz, fred,
+and submit.
+
+=head1 DESCRIPTION
+
+Active fields will not be created when:
+
+  Attribute is read only
+  Attribute does HTML::FormHandler::NoField trait
+  Attribute name starts with an underscore
+
+Fields will have the default type (Text) unless the Field type is is specified
+in the 'form' hash. 
+
+Attributes that are marked 'required' ...
+
+The Moose type of the attribute ('isa') will be pulled into the created fields
+using the 'apply' syntax. An attribute with the Str type will have the equivalent
+of: C<< apply => [Str] >>.
+
+=cut
+
 has metaclass => (
     is       => 'ro',
     isa      => Object,

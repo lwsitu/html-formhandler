@@ -64,4 +64,10 @@ is_deeply(
     'form has fields for every attribute',
 );
 
+is_deeply(
+    [sort map { $_->name } @fields],
+    ['bar', 'baz', 'corge', 'fred', 'submit'],
+    'form has fields for every attribute',
+);
+
 done_testing;

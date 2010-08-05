@@ -190,7 +190,7 @@ in the form class:
 
    item_class  - source name of row
    dependency  - (see dependency)
-   field_list  - and array of field definitions
+   field_list  - an array of field definitions
    init_object - a hashref or object to provide initial values
 
 Examples of creating a form object with new:
@@ -1155,6 +1155,32 @@ dew: Dan Thomas
 koki: Klaus Ita
 
 jnapiorkowski: John Napiorkowski
+
+lestrrat: Daisuke Maki
+
+hobbs: Andrew Rodland
+
+Andy Clayton
+
+boghead: Bryan Beeley
+
+Csaba Hetenyi
+
+Eisuke Oishi
+
+Lian Wan Situ
+
+Murray
+
+Nick Logan
+
+Vladimir Timofeev
+
+diegok: Diego Kuperman
+
+ijw: Ian Wells
+
+amiri: Amiri Barksdale
 
 Initially based on the source code of L<Form::Processor> by Bill Moseley
 

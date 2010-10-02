@@ -140,12 +140,17 @@ you to look for a different input parameter.
 
 =over
 
-=item inactive
+=item inactive, is_inactive, is_active
 
 Set this attribute if this field is inactive. This provides a way to define fields
 in the form and selectively set them to inactive. There is also an '_active' attribute,
 for internal use to indicate that the field has been activated by the form's 'active'
 attribute.
+
+You can use the is_inactive and is_active methods to check whether this particular
+field is active.
+
+   if( $form->field('foo')->is_active ) { ... }
 
 =item input
 
@@ -439,8 +444,18 @@ To declare actions inside a field class use L<HTML::FormHandler::Moose> and
 Actions specified with apply are cumulative. Actions may be specified in
 field classes and additional actions added in the 'has_field' declaration.
 
+In addition to being a string, Messages may be arrayrefs, for localization, 
+or coderefs, which will be passed a reference to the field and the original value.
+
+   apply [ { check => ['abc'], message => \&err_message } ];
+   sub err_message {
+      my ( $value, $field ) = @_;
+      return $field->name . ": must .... ";
+   }
+
 You can see examples of field classes with 'apply' actions in the source for
-L<HTML::FormHandler::Field::Money> and L<HTML::FormHandler::Field::Email>.
+L<HTML::FormHandler::Field::Money> and L<HTML::FormHandler::Field::Email>, and
+in t/constraints.t.
 
 =head2 Moose types for constraints and transformations
 
@@ -806,6 +821,14 @@ has 'order'             => ( isa => 'Int',  is => 'rw', default => 0 );
 has 'inactive'          => ( isa => 'Bool', is => 'rw', clearer => 'clear_inactive' );
 # 'active' is cleared whenever the form is cleared. Ephemeral activation.
 has '_active'         => ( isa => 'Bool', is => 'rw', clearer => 'clear_active' );
+sub is_active {
+    my $self = shift;
+    return ! $self->is_inactive; 
+}
+sub is_inactive {
+    my $self = shift;
+    return ($self->inactive && !$self->_active); 
+}
 has 'id'                => ( isa => 'Str',  is => 'rw', lazy => 1, builder => 'build_id' );
 sub build_id { shift->html_name }
 has 'javascript' => ( isa => 'Str',  is => 'rw' );
@@ -828,8 +851,10 @@ sub _set_validate_meth {
     my $self = shift;
     return $self->set_validate if $self->set_validate;
     my $name = $self->full_name;
-    $name =~ s/\./_/g;
-    $name =~ s/_\d+_/_/g; # remove repeatable field instances
+    if( $name =~ /\./ ) {
+        $name =~ s/\.\d+\./_/g;
+        $name =~ s/\./_/g;
+    }
     return 'validate_' . $name;
 }
 sub _validate {
@@ -850,16 +875,20 @@ sub _can_default {
 sub _comp_default_meth {
     my $self = shift;
     my $name = $self->full_name;
-    $name =~ s/\./_/g;
-    $name =~ s/_\d+_/_/g;
+    if( $name =~ /\./ ) {
+        $name =~ s/\.\d+\./_/g;
+        $name =~ s/\./_/g;
+    }
     return 'init_value_' . $name;
 }
 sub _set_default_meth {
     my $self = shift;
     return $self->set_default if $self->set_default;
     my $name = $self->full_name;
-    $name =~ s/\./_/g;
-    $name =~ s/_\d_/_/g;
+    if( $name =~ /\./ ) {
+        $name =~ s/\.\d+\./_/g;
+        $name =~ s/\./_/g;
+    }
     return 'default_' . $name;
 }
 sub get_default_value {
